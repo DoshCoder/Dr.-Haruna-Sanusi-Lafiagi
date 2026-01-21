@@ -1,106 +1,141 @@
- // Mobile Navigation Toggle[citation:3]
-        document.getElementById('menuToggle').addEventListener('click', function() {
-            document.getElementById('mainNav').classList.toggle('active');
-        });
+// Mobile menu toggle
+const menuToggle = document.getElementById('menuToggle');
+const mainNav = document.getElementById('mainNav');
 
-        // Smooth Scrolling for Navigation Links
-        document.querySelectorAll('nav a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function(e) {
-                e.preventDefault();
-                const targetId = this.getAttribute('href');
-                if(targetId === '#') return;
-                
-                const targetElement = document.querySelector(targetId);
-                if(targetElement) {
-                    window.scrollTo({
-                        top: targetElement.offsetTop - 80,
-                        behavior: 'smooth'
-                    });
-                    
-                    // Update active nav link
-                    document.querySelectorAll('nav a').forEach(link => {
-                        link.classList.remove('active');
-                    });
-                    this.classList.add('active');
-                    
-                    // Close mobile menu if open
-                    document.getElementById('mainNav').classList.remove('active');
-                }
+if (menuToggle && mainNav) {
+    menuToggle.addEventListener('click', () => {
+        mainNav.classList.toggle('active');
+        menuToggle.innerHTML = mainNav.classList.contains('active') 
+            ? '<i class="fas fa-times"></i>' 
+            : '<i class="fas fa-bars"></i>';
+    });
+
+    // Close menu when clicking on a link
+    document.querySelectorAll('#mainNav a').forEach(anchor => {
+        anchor.addEventListener('click', () => {
+            mainNav.classList.remove('active');
+            menuToggle.innerHTML = '<i class="fas fa-bars"></i>';
+        });
+    });
+}
+
+// Smooth scrolling for navigation links
+document.querySelectorAll('nav a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function(e) {
+        e.preventDefault();
+        const targetId = this.getAttribute('href');
+        if(targetId === '#') return;
+        
+        const targetElement = document.querySelector(targetId);
+        if(targetElement) {
+            // Update active navigation
+            document.querySelectorAll('nav a').forEach(link => {
+                link.classList.remove('active');
             });
-        });
-
-        // Filterable Publications Table[citation:4]
-        function filterPublications() {
-            const input = document.getElementById('pubSearch');
-            const filter = input.value.toUpperCase();
-            const table = document.getElementById('publicationsTable');
-            const tr = table.getElementsByTagName('tr');
+            this.classList.add('active');
             
-            for (let i = 1; i < tr.length; i++) {
-                const td1 = tr[i].getElementsByTagName('td')[0];
-                const td2 = tr[i].getElementsByTagName('td')[1];
-                const td3 = tr[i].getElementsByTagName('td')[2];
-                
-                if (td1 || td2 || td3) {
-                    const txtValue1 = td1.textContent || td1.innerText;
-                    const txtValue2 = td2.textContent || td2.innerText;
-                    const txtValue3 = td3.textContent || td3.innerText;
-                    
-                    if (txtValue1.toUpperCase().indexOf(filter) > -1 || 
-                        txtValue2.toUpperCase().indexOf(filter) > -1 || 
-                        txtValue3.toUpperCase().indexOf(filter) > -1) {
-                        tr[i].style.display = '';
-                    } else {
-                        tr[i].style.display = 'none';
-                    }
+            // Scroll to target
+            window.scrollTo({
+                top: targetElement.offsetTop - 80,
+                behavior: 'smooth'
+            });
+        }
+    });
+});
+
+// Accordion functionality
+function toggleAccordion(header) {
+    const item = header.parentElement;
+    const content = item.querySelector('.accordion-content');
+    const icon = header.querySelector('i');
+    
+    // Close other accordion items
+    document.querySelectorAll('.accordion-item').forEach(otherItem => {
+        if (otherItem !== item) {
+            otherItem.querySelector('.accordion-content').classList.remove('open');
+            otherItem.querySelector('.accordion-header').classList.remove('active');
+        }
+    });
+    
+    // Toggle current item
+    content.classList.toggle('open');
+    header.classList.toggle('active');
+    
+    // Update icon
+    if (content.classList.contains('open')) {
+        icon.style.transform = 'rotate(180deg)';
+    } else {
+        icon.style.transform = 'rotate(0deg)';
+    }
+}
+
+// Publication search functionality
+const pubSearch = document.getElementById('pubSearch');
+const pubTable = document.getElementById('publicationsTable');
+
+if (pubSearch && pubTable) {
+    pubSearch.addEventListener('input', function() {
+        const filter = this.value.toLowerCase();
+        const rows = pubTable.getElementsByTagName('tr');
+        
+        for (let i = 1; i < rows.length; i++) { // Start from 1 to skip header
+            const cells = rows[i].getElementsByTagName('td');
+            let found = false;
+            
+            for (let j = 0; j < cells.length; j++) {
+                if (cells[j].textContent.toLowerCase().includes(filter)) {
+                    found = true;
+                    break;
                 }
             }
+            
+            rows[i].style.display = found ? '' : 'none';
         }
+    });
+}
+
+// Contact form submission
+const messageForm = document.getElementById('messageForm');
+if (messageForm) {
+    messageForm.addEventListener('submit', function(e) {
+        e.preventDefault();
         
-        document.getElementById('pubSearch').addEventListener('keyup', filterPublications);
+        // Get form data
+        const formData = {
+            name: document.getElementById('name').value,
+            email: document.getElementById('email').value,
+            subject: document.getElementById('subject').value,
+            message: document.getElementById('message').value
+        };
+        
+        // Here you would typically send the data to a server
+        console.log('Form submitted:', formData);
+        
+        // Show success message
+        alert('Thank you for your message! Dr. Haruna will respond to your inquiry soon.');
+        
+        // Reset form
+        messageForm.reset();
+    });
+}
 
-        // Accordion Functionality for Teaching Section
-        function toggleAccordion(header) {
-            header.classList.toggle('active');
-            const content = header.nextElementSibling;
-            content.classList.toggle('open');
-        }
-
-        // Contact Form Submission
-        document.getElementById('messageForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            // Get form values
-            const name = document.getElementById('name').value;
-            const email = document.getElementById('email').value;
-            const subject = document.getElementById('subject').value;
-            const message = document.getElementById('message').value;
-            
-            // In a real implementation, this would connect to a backend
-            // For now, we'll simulate submission and show a message
-            alert(`Thank you, ${name}. Your message has been received. In a live implementation, this would be sent to Dr. Haruna's official email.`);
-            
-            // Reset form
-            this.reset();
-        });
-
-        // Update active nav link on scroll
-        window.addEventListener('scroll', function() {
-            const sections = document.querySelectorAll('section[id]');
-            const scrollPos = window.scrollY + 100;
-            
-            sections.forEach(section => {
-                const sectionTop = section.offsetTop;
-                const sectionHeight = section.clientHeight;
-                const sectionId = section.getAttribute('id');
-                
-                if (scrollPos >= sectionTop && scrollPos < sectionTop + sectionHeight) {
-                    document.querySelectorAll('nav a').forEach(link => {
-                        link.classList.remove('active');
-                        if (link.getAttribute('href') === `#${sectionId}`) {
-                            link.classList.add('active');
-                        }
-                    });
+// Highlight active section on scroll
+window.addEventListener('scroll', () => {
+    const sections = document.querySelectorAll('section[id]');
+    const scrollPos = window.scrollY + 100;
+    
+    sections.forEach(section => {
+        const sectionTop = section.offsetTop;
+        const sectionHeight = section.clientHeight;
+        const sectionId = section.getAttribute('id');
+        
+        if (scrollPos >= sectionTop && scrollPos < sectionTop + sectionHeight) {
+            document.querySelectorAll('nav a').forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === `#${sectionId}`) {
+                    link.classList.add('active');
                 }
             });
-        });
+        }
+    });
+});
